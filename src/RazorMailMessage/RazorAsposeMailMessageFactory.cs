@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Net.Mail;
-using System.Net.Mime;
 using System.Reflection;
 using System.Text;
+using Aspose.Email.Mail;
+using Aspose.Email.Mime;
 using RazorEngine.Configuration;
 using RazorEngine.Templating;
 using RazorMailMessage.Exceptions;
@@ -14,21 +14,21 @@ using ITemplateResolver = RazorMailMessage.TemplateResolvers.ITemplateResolver;
 
 namespace RazorMailMessage
 {
-    public class RazorMailMessageFactory : IRazorMailMessageFactory<MailMessage, LinkedResource>, IDisposable
+    public class RazorAsposeMailMessageFactory : IRazorMailMessageFactory<MailMessage, LinkedResource>, IDisposable
     {
         private readonly ITemplateResolver _templateResolver;
         private readonly ITemplateCache _templateCache;
         private readonly ITemplateService _templateService;
 
-        public RazorMailMessageFactory() : this(new DefaultTemplateResolver(Assembly.GetCallingAssembly(), string.Empty), typeof(DefaultTemplateBase<>), null, new InMemoryTemplateCache()) { }
+        public RazorAsposeMailMessageFactory() : this(new DefaultTemplateResolver(Assembly.GetCallingAssembly(), string.Empty), typeof(DefaultTemplateBase<>), null, new InMemoryTemplateCache()) { }
 
-        public RazorMailMessageFactory(ITemplateResolver templateResolver) : this(templateResolver, typeof(DefaultTemplateBase<>), null, new InMemoryTemplateCache()) { }
+        public RazorAsposeMailMessageFactory(ITemplateResolver templateResolver) : this(templateResolver, typeof(DefaultTemplateBase<>), null, new InMemoryTemplateCache()) { }
 
-        public RazorMailMessageFactory(ITemplateResolver templateResolver, Type templateBase) : this(templateResolver, templateBase, null, new InMemoryTemplateCache()) { }
+        public RazorAsposeMailMessageFactory(ITemplateResolver templateResolver, Type templateBase) : this(templateResolver, templateBase, null, new InMemoryTemplateCache()) { }
 
-        public RazorMailMessageFactory(ITemplateResolver templateResolver, Type templateBase, Func<Type, object> dependencyResolver) : this(templateResolver, templateBase, dependencyResolver, new InMemoryTemplateCache()) { }
-       
-        public RazorMailMessageFactory(ITemplateResolver templateResolver, Type templateBase, Func<Type, object> dependencyResolver, ITemplateCache templateCache)
+        public RazorAsposeMailMessageFactory(ITemplateResolver templateResolver, Type templateBase, Func<Type, object> dependencyResolver) : this(templateResolver, templateBase, dependencyResolver, new InMemoryTemplateCache()) { }
+
+        public RazorAsposeMailMessageFactory(ITemplateResolver templateResolver, Type templateBase, Func<Type, object> dependencyResolver, ITemplateCache templateCache)
         {
             if (templateResolver == null)
             {
@@ -42,7 +42,7 @@ namespace RazorMailMessage
             {
                 throw new ArgumentNullException("templateBase");
             }
-            
+
             _templateResolver = templateResolver;
             _templateCache = templateCache;
 
@@ -52,17 +52,17 @@ namespace RazorMailMessage
                 // Once resolved, the layout will be cached by the razor engine, so the resolver is called only once during the lifetime of this factory
                 // However, we want the ability to cache the layout even when the factory is instatiated multiple times
                 Resolver = new DelegateTemplateResolver(layoutName =>
-                    {
-                        var layout = _templateCache.Get(layoutName);
+                {
+                    var layout = _templateCache.Get(layoutName);
 
-                        if (layout == null)
-                        {
-                            layout = _templateResolver.ResolveLayout(layoutName);
-                            _templateCache.Add(layoutName, layout);
-                        }
-                        return layout;
-                    }),
-                
+                    if (layout == null)
+                    {
+                        layout = _templateResolver.ResolveLayout(layoutName);
+                        _templateCache.Add(layoutName, layout);
+                    }
+                    return layout;
+                }),
+
                 // Set view base class
                 BaseTemplateType = templateBase
             };
@@ -71,7 +71,7 @@ namespace RazorMailMessage
             {
                 templateServiceConfiguration.Activator = new Activators.Activator(dependencyResolver);
             }
-            
+
             _templateService = new TemplateService(templateServiceConfiguration);
         }
 
@@ -164,7 +164,7 @@ namespace RazorMailMessage
         private static string ResolveTemplateCacheName(string templateName, bool plainText)
         {
             // Resolve template cache name based on culture and whether or not it is the plain text version
-            var templateCacheNameParts = new List<string> {templateName};
+            var templateCacheNameParts = new List<string> { templateName };
 
             if (plainText)
             {

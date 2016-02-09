@@ -4,11 +4,11 @@ using RazorEngine.Templating;
 
 namespace RazorMailMessage
 {
-    public interface IRazorMailMessageFactory
+    public interface IRazorMailMessageFactory<out TMailMessage, in TLinkedResource>
     {
-        MailMessage Create<TModel>(string templateName, TModel model);
-        MailMessage Create<TModel>(string templateName, TModel model, DynamicViewBag viewBag);
-        MailMessage Create<TModel>(string templateName, TModel model, IEnumerable<LinkedResource> linkedResources);
-        MailMessage Create<TModel>(string templateName, TModel model, DynamicViewBag viewBag, IEnumerable<LinkedResource> linkedResources);
+        TMailMessage Create<TModel>(string templateName, TModel model);
+        TMailMessage Create<TModel>(string templateName, TModel model, DynamicViewBag viewBag);
+        TMailMessage Create<TModel>(string templateName, TModel model, IEnumerable<TLinkedResource> linkedResources);
+        TMailMessage Create<TModel>(string templateName, TModel model, DynamicViewBag viewBag, IEnumerable<TLinkedResource> linkedResources);
     }
 }
